@@ -1,0 +1,26 @@
+services:
+  server:
+    image: docker.gitea.com/gitea:28.4.0-rootless
+    user: "1000:1000"
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      GITEA__database__DB_TYPE: sqlite3
+      GITEA__server__PROTOCOL: http
+      GITEA__server__HTTP_PORT: "3000"
+      GITEA__server__ROOT_URL: ${GITEA_ROOT_URL:-http://localhost:3000/}
+      GITEA__security__INSTALL_LOCK: "true"
+    volumes:
+      - gitea-data:/var/lib/gitea
+      - gitea-config:/etc/gitea
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:3000/api/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+volumes:
+  gitea-data:
+  gitea-config:
